@@ -38,6 +38,8 @@ import org.intellij.lang.annotations.Language
 
 
 class MainActivity : ComponentActivity() {
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -46,12 +48,13 @@ class MainActivity : ComponentActivity() {
             Products.CORN, Products.TOMATO, Products.BREAD, Products.BUTTER, Products.WATER,
             Products.MEAT, Products.MILK, Products.EGGS)
 
-        var titleProducts = remember { mutableStateOf("listOfProducts") }
-
-//        var title by remember { mutableStateOf("List of Products") }
-//        var subtitle by remember { mutableStateOf("Переключить язык") }
 
         setContent {
+
+            var count = 3
+            var titleProducts by rememberSaveable() { mutableStateOf("Список продуктов") }
+            var changeLanguageText by rememberSaveable() { mutableStateOf("Switch language") }
+            var rusLanguage by rememberSaveable() { mutableStateOf(true) }
 
             Column(modifier = Modifier
                 .padding(horizontal = 8.dp)
@@ -66,7 +69,7 @@ class MainActivity : ComponentActivity() {
                             .border(1.dp, color = Color.Black)
                     ) {
 
-                        Text(text = "List of products",
+                        Text(text = titleProducts,
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Bold, color = Color.White,
                             modifier =  Modifier.background(color = Color.DarkGray).padding(8.dp))
@@ -86,7 +89,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     items(productList) {
                         product ->
-                        ProductRow(product)
+                        ProductRow(product,rusLanguage)
                         Spacer(modifier = Modifier.padding(2.dp))
                     }
                 }
@@ -95,12 +98,21 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxWidth())
 
                 {
-                    Text(text = "Переключить язык", fontSize = 18.sp, fontWeight = FontWeight.Bold,
+                    Text(text = changeLanguageText, fontSize = 18.sp, fontWeight = FontWeight.Bold,
                         modifier = Modifier
                             .padding(top = 16.dp)
-//                            .clickable(onClick = { title = "Продуктовый лист"})
-//                            .clickable(onClick = { subtitle = "Change Language"})
-                                            )
+                            .clickable(onClick = {
+
+                                count += 1
+                                if (count % 2 != 0) {
+                                    titleProducts = "List of products"
+                                    changeLanguageText = "Изменить язык"
+                                    rusLanguage = false
+                                } else {
+                                    titleProducts = "Список продуктов"
+                                    changeLanguageText = "Switch language"
+                                    rusLanguage = true
+                                }} ))
                 }
             }
 
@@ -109,7 +121,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun ProductRow(products: Products) {
+fun ProductRow(products: Products, rusLanguage: Boolean) {
 
     Row (verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
@@ -119,13 +131,23 @@ fun ProductRow(products: Products) {
             .background(Color.White, shape = CircleShape)
             .clip(shape = CircleShape)) {
 
+        if (rusLanguage == true) {
             Text(text = products.rusName,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Normal,
                 color = Color.Black
             )
+        } else {
+            Text(text = products.engName,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Normal,
+                color = Color.Black
+            )
+        }
     }
 }
+
+
 
 enum class Products(val rusName: String, val engName: String) {
     APPLE("Яблоко","Apple"),
